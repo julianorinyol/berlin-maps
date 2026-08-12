@@ -1,6 +1,6 @@
 .app {
   display: flex;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   overflow: hidden;
 }
@@ -46,6 +46,10 @@
 
 .route-card:hover {
   border-color: #454c53;
+}
+
+.route-card-clickable {
+  cursor: pointer;
 }
 
 .route-card.inactive {
@@ -398,4 +402,127 @@
 
 .edit-btn-map:hover {
   background: #34507a;
+}
+
+.edit-btn-danger {
+  background: #7a3d3d;
+  border-color: #7a3d3d;
+}
+
+.edit-btn-danger:hover {
+  background: #8a4747;
+}
+
+.map-edit-range {
+  color: #e0b04a;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pin-node-selected .pin-dot {
+  background: #ff9d3d !important;
+  border-color: #fff !important;
+  transform: scale(1.2);
+}
+
+/* Detail page */
+
+.detail-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #14171a;
+  color: #e8e8e8;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #2a2f34;
+  flex-shrink: 0;
+}
+
+.back-link {
+  background: none;
+  border: none;
+  color: #9aa1a8;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.back-link:hover {
+  background: #1f2429;
+  color: #e8e8e8;
+}
+
+.detail-edit-icon {
+  opacity: 0.85;
+  font-size: 13px;
+}
+
+.detail-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.detail-info {
+  width: 400px;
+  min-width: 400px;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+  border-right: 1px solid #2a2f34;
+}
+
+.detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.swatch-lg {
+  width: 18px;
+  height: 18px;
+}
+
+.detail-title-row h1 {
+  font-size: 21px;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.detail-section {
+  margin-top: 22px;
+}
+
+.detail-section h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #7a8087;
+  margin: 0 0 10px;
+}
+
+.street-chain-lg {
+  font-size: 13.5px;
+  line-height: 1.9;
+}
+
+.note-lg {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.detail-section-placeholder {
+  padding: 14px;
+  border: 1px dashed #2a2f34;
+  border-radius: 8px;
 }
