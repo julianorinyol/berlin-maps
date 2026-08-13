@@ -5,6 +5,25 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Berlin No-Turn Bike Routes</title>
+    <script type="text/javascript">
+      // Reverses the redirect encoding done by 404.html (see that file for
+      // why this exists): turns "/berlin-maps/?/routes/route1" back into a
+      // real "/berlin-maps/routes/route1" URL before the app boots, so our
+      // own router (which reads window.location.pathname) sees the route
+      // the user actually asked for.
+      (function (l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search
+            .slice(1)
+            .split('&')
+            .map(function (s) {
+              return s.replace(/~and~/g, '&')
+            })
+            .join('?')
+          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash)
+        }
+      })(window.location)
+    </script>
   </head>
   <body>
     <div id="root"></div>

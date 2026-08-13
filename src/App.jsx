@@ -106,21 +106,21 @@ const BERLIN_CENTER = [52.49, 13.37]
 // own slice of routes.json (filtered by the route's `collection` field).
 const COLLECTIONS = {
   'no-turn': {
-    path: '/',
+    pathSuffix: '',
     navLabel: 'No-turn routes',
     title: 'Berlin: no-turn bike routes',
     subtitle: 'Roads you can cycle "straight" across Berlin — the street changes name, but you never turn.',
     empty: 'No routes yet.',
   },
   'nice-rides': {
-    path: '/nice-bike-rides',
+    pathSuffix: 'nice-bike-rides',
     navLabel: 'Nice Bike Rides',
     title: 'Nice Bike Rides',
     subtitle: 'Pleasant cycling routes around Berlin — no gimmick, just good rides.',
     empty: 'No rides added yet.',
   },
   wasserwege: {
-    path: '/wasserwanderwege',
+    pathSuffix: 'wasserwanderwege',
     navLabel: 'Wasserwanderwege',
     title: 'Wasserwanderwege',
     subtitle: "Water trails — canoe and kayak routes along Berlin's rivers, canals and lakes.",
@@ -129,14 +129,32 @@ const COLLECTIONS = {
 }
 const DEFAULT_COLLECTION = 'no-turn'
 
+// import.meta.env.BASE_URL is "/" in dev and "/berlin-maps/" in a
+// production build (see vite.config.js) — deriving every route path from
+// it keeps local testing and the deployed GitHub Pages site consistent
+// without hardcoding the repo name here.
+const BASE_PATH = import.meta.env.BASE_URL.replace(/\/+$/, '')
+
+function collectionPath(key) {
+  return `${BASE_PATH}/${COLLECTIONS[key].pathSuffix}`
+}
+
+function detailPath(id) {
+  return `${BASE_PATH}/routes/${id}`
+}
+
 function parseLocation() {
-  const path = window.location.pathname
+  let path = window.location.pathname
+  if (BASE_PATH && path.startsWith(BASE_PATH)) path = path.slice(BASE_PATH.length)
+  if (!path.startsWith('/')) path = `/${path}`
+
   const detailMatch = path.match(/^\/routes\/([^/]+)/)
   if (detailMatch) {
     const route = initialRoutes.find((r) => r.id === detailMatch[1])
     return { collection: route ? route.collection || DEFAULT_COLLECTION : DEFAULT_COLLECTION, detailId: route ? route.id : null }
   }
-  const entry = Object.entries(COLLECTIONS).find(([, c]) => c.path === path)
+  const suffix = path.replace(/^\//, '').replace(/\/$/, '')
+  const entry = Object.entries(COLLECTIONS).find(([, c]) => c.pathSuffix === suffix)
   return { collection: entry ? entry[0] : DEFAULT_COLLECTION, detailId: null }
 }
 
@@ -538,17 +556,17 @@ function App() {
 
   const openDetail = (id) => {
     const route = routes.find((r) => r.id === id)
-    window.history.pushState({}, '', `/routes/${id}`)
+    window.history.pushState({}, '', detailPath(id))
     setLocation({ collection: (route && route.collection) || DEFAULT_COLLECTION, detailId: id })
   }
 
   const closeDetail = () => {
-    window.history.pushState({}, '', COLLECTIONS[location.collection].path)
+    window.history.pushState({}, '', collectionPath(location.collection))
     setLocation({ collection: location.collection, detailId: null })
   }
 
   const navigateToCollection = (key) => {
-    window.history.pushState({}, '', COLLECTIONS[key].path)
+    window.history.pushState({}, '', collectionPath(key))
     setLocation({ collection: key, detailId: null })
   }
 

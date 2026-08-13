@@ -52,6 +52,10 @@ function routesEditorApi() {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  // GitHub project pages are served at github.io/<repo>/, so the built
+  // app needs that prefix baked into every asset/route URL. Keep dev at
+  // "/" so local testing URLs don't change.
+  base: command === 'build' ? '/berlin-maps/' : '/',
   plugins: [react(), routesEditorApi()],
-})
+}))

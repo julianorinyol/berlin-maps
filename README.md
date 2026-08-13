@@ -1,16 +1,34 @@
-# React + Vite
+# Berlin No-Turn Bike Routes
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+**🔗 Live site: https://julianorinyol.github.io/berlin-maps/**
 
-Currently, two official plugins are available:
+An interactive map of Berlin bike routes that stay "straight" — the street
+changes name at every block, but you never turn — plus a couple of other
+route collections (Nice Bike Rides, Wasserwanderwege).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Built with React, Leaflet and OpenStreetMap tiles.
 
-## React Compiler
+## Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+npm install
+npm run dev
+```
 
-## Expanding the Oxlint configuration
+Route data lives in `src/data/routes.json` and `src/data/wasserwege.json`.
+When running the dev server, each route's detail page has an edit icon
+(✏️) that opens an editor — including a "edit points on map" mode with
+click-to-delete and shift-click range deletion — which saves straight back
+to those JSON files via a small local-only dev API
+(`vite.config.js`). None of that editing capability exists in the deployed
+build.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Deploying
+
+```
+npm run deploy
+```
+
+This builds the app and pushes `dist/` to the `gh-pages` branch (via the
+`gh-pages` package). GitHub Pages then serves it from that branch — see
+repo Settings → Pages if it needs to be pointed there for the first time.
