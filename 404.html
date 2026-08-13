@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Berlin No-Turn Bike Routes</title>
+  <script type="text/javascript">
+    // GitHub Pages only serves real files — it has no concept of our
+    // client-side routes (/routes/:id, /nice-bike-rides, etc). This page
+    // is what GH Pages falls back to for any unknown path (a 404); it
+    // encodes the requested path into a query string and redirects to
+    // index.html, which decodes it back via history.replaceState.
+    // Standard technique: https://github.com/rafgraph/spa-github-pages
+    var pathSegmentsToKeep = 1; // keep "/berlin-maps" (the repo name segment)
+    var l = window.location;
+    l.replace(
+      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+      l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+      l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+      (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+      l.hash
+    );
+  </script>
+</head>
+<body></body>
+</html>
