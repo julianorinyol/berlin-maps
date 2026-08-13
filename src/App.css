@@ -425,6 +425,111 @@
   transform: scale(1.2);
 }
 
+.pin-destination .pin-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: #6bcb8f;
+  border: 1.5px solid #fff;
+  transform: rotate(45deg);
+}
+
+/* Site nav */
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 18px;
+}
+
+.site-nav-link {
+  background: #1b1f23;
+  border: 1px solid #2a2f34;
+  color: #9aa1a8;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.site-nav-link:hover {
+  border-color: #454c53;
+  color: #e8e8e8;
+}
+
+.site-nav-link.active {
+  background: #2a3f5c;
+  border-color: #2a3f5c;
+  color: #e8e8e8;
+}
+
+.empty-state {
+  font-size: 13px;
+  color: #7a8087;
+  padding: 20px 0;
+}
+
+.destination-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #c7ccd1;
+  line-height: 1.8;
+}
+
+.detail-subheading {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5c6167;
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.trip-details {
+  margin: 0;
+  font-size: 13px;
+}
+
+.trip-details dt {
+  color: #7a8087;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 12px;
+}
+
+.trip-details dt:first-child {
+  margin-top: 0;
+}
+
+.trip-details dd {
+  margin: 4px 0 0;
+  color: #d6dbe0;
+  line-height: 1.5;
+}
+
+.trip-detail-note {
+  color: #7a8087;
+}
+
+.trip-sources {
+  margin-top: 16px;
+}
+
+.trip-sources ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.trip-sources a {
+  color: #8fb8e0;
+  word-break: break-all;
+}
+
 /* Detail page */
 
 .detail-page {
@@ -464,6 +569,25 @@
 .detail-edit-icon {
   opacity: 0.85;
   font-size: 13px;
+}
+
+.detail-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gmaps-link {
+  opacity: 0.9;
+  font-size: 13px;
+  text-decoration: none;
+  color: #8fb8e0;
+  border: 1px solid #2a2f34;
+}
+
+.gmaps-link:hover {
+  opacity: 1;
+  background: #1f2429;
 }
 
 .detail-body {

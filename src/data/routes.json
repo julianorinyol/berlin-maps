@@ -3198,7 +3198,80 @@
           13.2690711
         ]
       }
-    ]
+    ],
+    "destinations": [
+      {
+        "label": "Körnerpark",
+        "coord": [
+          52.4713168,
+          13.4379116
+        ]
+      },
+      {
+        "label": "Tempelhof (Tempelhofer Feld)",
+        "coord": [
+          52.4744192,
+          13.4026007
+        ]
+      },
+      {
+        "label": "Hasenheide",
+        "coord": [
+          52.4886648,
+          13.4108348
+        ]
+      },
+      {
+        "label": "Viktoriapark",
+        "coord": [
+          52.4874665,
+          13.3808123
+        ]
+      },
+      {
+        "label": "Park am Gleisdreieck",
+        "coord": [
+          52.5016445,
+          13.3722927
+        ]
+      },
+      {
+        "label": "Preußenpark / Thaipark",
+        "coord": [
+          52.4924987,
+          13.3131211
+        ]
+      },
+      {
+        "label": "Halensee",
+        "coord": [
+          52.4972262,
+          13.2929986
+        ]
+      },
+      {
+        "label": "Grunewald",
+        "coord": [
+          52.4873475,
+          13.2637538
+        ]
+      },
+      {
+        "label": "Krumme Lanke",
+        "coord": [
+          52.4434481,
+          13.2413921
+        ]
+      },
+      {
+        "label": "Schlachtensee",
+        "coord": [
+          52.43846,
+          13.2140996
+        ]
+      }
+    ],
+    "collection": "no-turn"
   },
   {
     "id": "route2",
@@ -4947,7 +5020,8 @@
           13.2854433
         ]
       }
-    ]
+    ],
+    "collection": "no-turn"
   },
   {
     "id": "route3",
@@ -8404,7 +8478,8 @@
           13.6721244
         ]
       }
-    ]
+    ],
+    "collection": "no-turn"
   },
   {
     "id": "route4",
@@ -11989,7 +12064,8 @@
           13.2111607
         ]
       }
-    ]
+    ],
+    "collection": "no-turn"
   },
   {
     "id": "route5",
@@ -15422,7 +15498,8 @@
           13.5877005
         ]
       }
-    ]
+    ],
+    "collection": "no-turn"
   },
   {
     "id": "route6",
@@ -17947,7 +18024,8 @@
           13.8212631
         ]
       }
-    ]
+    ],
+    "collection": "no-turn"
   },
   {
     "id": "route7",
@@ -19664,7 +19742,8 @@
           13.3572597
         ]
       }
-    ]
+    ],
+    "collection": "no-turn"
   },
   {
     "id": "route8",
@@ -20601,7 +20680,8 @@
           13.2929986
         ]
       }
-    ]
+    ],
+    "collection": "no-turn"
   },
   {
     "id": "route9",
@@ -25494,7 +25574,8 @@
           13.3791152
         ]
       }
-    ]
+    ],
+    "collection": "no-turn"
   },
   {
     "id": "route10",
@@ -28979,6 +29060,7 @@
           13.0591397
         ]
       }
-    ]
+    ],
+    "collection": "no-turn"
   }
 ]

@@ -1,0 +1,326 @@
+[
+  {
+    "id": "wasser1",
+    "collection": "wasserwege",
+    "color": "#3fa7d6",
+    "coordinates": [
+      [
+        52.4254545,
+        13.0239865
+      ],
+      [
+        52.446372,
+        13.0451544
+      ],
+      [
+        52.4681584,
+        13.0119376
+      ],
+      [
+        52.4577566,
+        12.9669047
+      ],
+      [
+        52.4346626,
+        12.9415689
+      ],
+      [
+        52.43252,
+        12.954995
+      ],
+      [
+        52.425275,
+        12.9089056
+      ],
+      [
+        52.431623,
+        12.9071832
+      ],
+      [
+        52.4106888,
+        12.9091111
+      ],
+      [
+        52.3715809,
+        12.9329125
+      ],
+      [
+        52.3766927,
+        12.9442014
+      ],
+      [
+        52.3589011,
+        12.9234691
+      ],
+      [
+        52.3451445,
+        12.9441332
+      ],
+      [
+        52.3464533,
+        12.9890287
+      ],
+      [
+        52.3337227,
+        12.9812815
+      ],
+      [
+        52.3669932,
+        13.0167581
+      ],
+      [
+        52.3868346,
+        12.9972739
+      ],
+      [
+        52.3922047,
+        13.1080127
+      ],
+      [
+        52.4192803,
+        13.0703237
+      ],
+      [
+        52.4325571,
+        13.1011746
+      ],
+      [
+        52.4404454,
+        13.0974115
+      ],
+      [
+        52.4254545,
+        13.0239865
+      ]
+    ],
+    "stops": [
+      {
+        "label": "Potsdam Nord",
+        "coord": [
+          52.4254545,
+          13.0239865
+        ]
+      },
+      {
+        "label": "Neu Fahrland",
+        "coord": [
+          52.446372,
+          13.0451544
+        ]
+      },
+      {
+        "label": "Fahrland",
+        "coord": [
+          52.4681584,
+          13.0119376
+        ]
+      },
+      {
+        "label": "Marquardt",
+        "coord": [
+          52.4577566,
+          12.9669047
+        ]
+      },
+      {
+        "label": "Leest",
+        "coord": [
+          52.4346626,
+          12.9415689
+        ]
+      },
+      {
+        "label": "Grube",
+        "coord": [
+          52.43252,
+          12.954995
+        ]
+      },
+      {
+        "label": "Alt Töplitz",
+        "coord": [
+          52.425275,
+          12.9089056
+        ]
+      },
+      {
+        "label": "Töplitz",
+        "coord": [
+          52.431623,
+          12.9071832
+        ]
+      },
+      {
+        "label": "Kolonie Zern",
+        "coord": [
+          52.4106888,
+          12.9091111
+        ]
+      },
+      {
+        "label": "Werder (Havel)",
+        "coord": [
+          52.3715809,
+          12.9329125
+        ]
+      },
+      {
+        "label": "Insel Werder",
+        "coord": [
+          52.3766927,
+          12.9442014
+        ]
+      },
+      {
+        "label": "Glindower See",
+        "coord": [
+          52.3589011,
+          12.9234691
+        ]
+      },
+      {
+        "label": "Petzow",
+        "coord": [
+          52.3451445,
+          12.9441332
+        ]
+      },
+      {
+        "label": "Caputh",
+        "coord": [
+          52.3464533,
+          12.9890287
+        ]
+      },
+      {
+        "label": "Schwielowsee",
+        "coord": [
+          52.3337227,
+          12.9812815
+        ]
+      },
+      {
+        "label": "Templiner See",
+        "coord": [
+          52.3669932,
+          13.0167581
+        ]
+      },
+      {
+        "label": "Wildpark",
+        "coord": [
+          52.3868346,
+          12.9972739
+        ]
+      },
+      {
+        "label": "Babelsberg",
+        "coord": [
+          52.3922047,
+          13.1080127
+        ]
+      },
+      {
+        "label": "Schloss Cecilienhof",
+        "coord": [
+          52.4192803,
+          13.0703237
+        ]
+      },
+      {
+        "label": "Sacrow",
+        "coord": [
+          52.4325571,
+          13.1011746
+        ]
+      },
+      {
+        "label": "Sacrower See",
+        "coord": [
+          52.4404454,
+          13.0974115
+        ]
+      },
+      {
+        "label": "Potsdam Nord",
+        "coord": [
+          52.4254545,
+          13.0239865
+        ]
+      }
+    ],
+    "trip": {
+      "name": "Potsdam Havelseen Loop",
+      "location": "Potsdam, Brandenburg, Germany",
+      "type": "kayak_touring_route",
+      "waterway": "Havel (lake chain)",
+      "route_description": "Loop around the Havel lakes north and south of Potsdam",
+      "waypoints_order": [
+        "Potsdam Nord",
+        "Neu Fahrland",
+        "Fahrland",
+        "Marquardt",
+        "Leest",
+        "Grube",
+        "Alt Töplitz",
+        "Töplitz",
+        "Kolonie Zern",
+        "Werder (Havel)",
+        "Insel Werder",
+        "Glindower See",
+        "Petzow",
+        "Caputh",
+        "Schwielowsee",
+        "Templiner See",
+        "Wildpark",
+        "Babelsberg",
+        "Schloss Cecilienhof",
+        "Sacrow",
+        "Sacrower See",
+        "Potsdam Nord"
+      ]
+    },
+    "distance": {
+      "estimated_km": 40,
+      "range_km": [
+        35,
+        45
+      ],
+      "confidence": "low",
+      "note": "Estimated by tracing route on map screenshot; no scale bar available, treat as approximate"
+    },
+    "water_flow": {
+      "general_direction": "southeast to northwest (Potsdam/Templiner See toward Werder and onward to Paretz)",
+      "current_strength_kmh": {
+        "typical": 0,
+        "max": 1
+      },
+      "note": "Mostly a chain of lakes with negligible current; wind affects paddling more than flow"
+    },
+    "paddling_speed_assumptions": {
+      "craft": "2-person inflatable kayak",
+      "skill_level": "beginner",
+      "conditions": "calm water",
+      "speed_kmh": {
+        "low": 3,
+        "typical": 3.5,
+        "high": 4.5
+      }
+    },
+    "time_estimate": {
+      "total_hours": {
+        "low": 8,
+        "typical": 11.4,
+        "high": 15
+      },
+      "feasible_single_day": false,
+      "recommendation": "Split into 2-3 days with stops in Werder or Caputh, or paddle a shorter partial loop"
+    },
+    "sources": [
+      "https://de.wikipedia.org/wiki/Potsdamer_Havel",
+      "https://www.skipperguide.de/wiki/Havel",
+      "https://www.paddleroundthepier.com/average-kayak-speed/",
+      "https://www.paddleroundthepier.com/inflatable-kayak-speed-and-tracking/"
+    ]
+  }
+]

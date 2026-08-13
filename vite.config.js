@@ -4,11 +4,16 @@ import fs from 'fs'
 import path from 'path'
 
 const routesFile = path.resolve(process.cwd(), 'src/data/routes.json')
+const wasserwegeFile = path.resolve(process.cwd(), 'src/data/wasserwege.json')
 
-// Dev-only API for editing routes.json from the app UI. This plugin's
-// configureServer hook only runs under `vite dev` — it is never invoked
-// for `vite build`, so there is no server-writing capability in any
-// deployed/production build.
+function fileFor(collection) {
+  return collection === 'wasserwege' ? wasserwegeFile : routesFile
+}
+
+// Dev-only API for editing routes.json / wasserwege.json from the app UI.
+// This plugin's configureServer hook only runs under `vite dev` — it is
+// never invoked for `vite build`, so there is no server-writing capability
+// in any deployed/production build.
 function routesEditorApi() {
   return {
     name: 'routes-editor-api',
@@ -19,16 +24,17 @@ function routesEditorApi() {
           req.on('data', (chunk) => { body += chunk })
           req.on('end', () => {
             try {
-              const { id, route } = JSON.parse(body)
-              const routes = JSON.parse(fs.readFileSync(routesFile, 'utf-8'))
-              const idx = routes.findIndex((r) => r.id === id)
+              const { id, route, collection } = JSON.parse(body)
+              const targetFile = fileFor(collection)
+              const items = JSON.parse(fs.readFileSync(targetFile, 'utf-8'))
+              const idx = items.findIndex((r) => r.id === id)
               if (idx === -1) {
                 res.statusCode = 404
-                res.end(JSON.stringify({ error: `route "${id}" not found` }))
+                res.end(JSON.stringify({ error: `route "${id}" not found in ${path.basename(targetFile)}` }))
                 return
               }
-              routes[idx] = route
-              fs.writeFileSync(routesFile, JSON.stringify(routes, null, 2))
+              items[idx] = route
+              fs.writeFileSync(targetFile, JSON.stringify(items, null, 2))
               res.setHeader('Content-Type', 'application/json')
               res.end(JSON.stringify({ ok: true }))
             } catch (e) {

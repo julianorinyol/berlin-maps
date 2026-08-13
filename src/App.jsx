@@ -1,8 +1,33 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { MapContainer, TileLayer, Polyline, Marker, Popup, Tooltip, useMap } from 'react-leaflet'
 import L from 'leaflet'
-import initialRoutes from './data/routes.json'
+import bikeRoutes from './data/routes.json'
+import wasserwege from './data/wasserwege.json'
 import './App.css'
+
+// wasserwege.json uses a richer, water-trip-specific schema (trip/distance/
+// water_flow/etc, per the user's own format) instead of the bike-route
+// schema. Normalize each entry into the same shape the map/list/detail
+// components already know how to render, while keeping the original rich
+// data around as `waterTrip` for the water-specific detail sections.
+function normalizeWaterTrip(trip) {
+  const waypoints = trip.trip.waypoints_order
+  return {
+    id: trip.id,
+    collection: trip.collection,
+    color: trip.color,
+    name: trip.trip.name,
+    confidence: trip.distance.confidence,
+    note: trip.trip.route_description,
+    streetLabels: waypoints,
+    startEnd: [waypoints[0], waypoints[waypoints.length - 1]],
+    coordinates: trip.coordinates,
+    stops: trip.stops,
+    waterTrip: trip,
+  }
+}
+
+const initialRoutes = [...bikeRoutes, ...wasserwege.map(normalizeWaterTrip)]
 
 // Pretty-print a route's JSON with each [lat, lon] pair collapsed onto a
 // single line, instead of JSON.stringify's default 4 lines per point —
@@ -14,6 +39,34 @@ function formatRouteForEditing(route) {
     /\[\n\s+(-?\d+\.?\d*),\n\s+(-?\d+\.?\d*)\n\s+\]/g,
     '[$1, $2]'
   )
+}
+
+// Google's directions deep-link (maps.google.com/maps/dir/?api=1&...) needs
+// no API key and accepts up to 9 intermediate waypoints. Longer stop lists
+// are evenly sampled down to 9 so the overall shape survives instead of
+// just truncating the tail of the route.
+function googleMapsDirectionsUrl(route) {
+  if (!route.stops || route.stops.length < 2) return null
+  const origin = route.stops[0].coord
+  const destination = route.stops[route.stops.length - 1].coord
+  let mid = route.stops.slice(1, -1).map((s) => s.coord)
+  if (mid.length > 9) {
+    const step = mid.length / 9
+    mid = Array.from({ length: 9 }, (_, i) => mid[Math.min(mid.length - 1, Math.floor(i * step))])
+  }
+  const params = new URLSearchParams({
+    api: '1',
+    origin: origin.join(','),
+    destination: destination.join(','),
+    travelmode: route.waterTrip ? 'walking' : 'bicycling',
+  })
+  if (mid.length) params.set('waypoints', mid.map((w) => w.join(',')).join('|'))
+  return `https://www.google.com/maps/dir/?${params.toString()}`
+}
+
+function confidenceLabel(route) {
+  if (route.confidence !== 'high') return 'Approximate route'
+  return route.waterTrip ? 'Verified waterway' : 'Verified street chain'
 }
 
 const startIcon = L.divIcon({
@@ -41,13 +94,50 @@ const nodeSelectedIcon = L.divIcon({
   html: '<div class="pin-dot"></div>',
   iconSize: [10, 10],
 })
+const destinationIcon = L.divIcon({
+  className: 'pin pin-destination',
+  html: '<div class="pin-dot"></div>',
+  iconSize: [11, 11],
+})
 
 const BERLIN_CENTER = [52.49, 13.37]
 
-function routeIdFromPath() {
-  const match = window.location.pathname.match(/^\/routes\/([^/]+)/)
-  const id = match ? match[1] : null
-  return id && initialRoutes.some((r) => r.id === id) ? id : null
+// Separate top-level sections of the site, each with its own URL and its
+// own slice of routes.json (filtered by the route's `collection` field).
+const COLLECTIONS = {
+  'no-turn': {
+    path: '/',
+    navLabel: 'No-turn routes',
+    title: 'Berlin: no-turn bike routes',
+    subtitle: 'Roads you can cycle "straight" across Berlin — the street changes name, but you never turn.',
+    empty: 'No routes yet.',
+  },
+  'nice-rides': {
+    path: '/nice-bike-rides',
+    navLabel: 'Nice Bike Rides',
+    title: 'Nice Bike Rides',
+    subtitle: 'Pleasant cycling routes around Berlin — no gimmick, just good rides.',
+    empty: 'No rides added yet.',
+  },
+  wasserwege: {
+    path: '/wasserwanderwege',
+    navLabel: 'Wasserwanderwege',
+    title: 'Wasserwanderwege',
+    subtitle: "Water trails — canoe and kayak routes along Berlin's rivers, canals and lakes.",
+    empty: 'No water routes added yet.',
+  },
+}
+const DEFAULT_COLLECTION = 'no-turn'
+
+function parseLocation() {
+  const path = window.location.pathname
+  const detailMatch = path.match(/^\/routes\/([^/]+)/)
+  if (detailMatch) {
+    const route = initialRoutes.find((r) => r.id === detailMatch[1])
+    return { collection: route ? route.collection || DEFAULT_COLLECTION : DEFAULT_COLLECTION, detailId: route ? route.id : null }
+  }
+  const entry = Object.entries(COLLECTIONS).find(([, c]) => c.path === path)
+  return { collection: entry ? entry[0] : DEFAULT_COLLECTION, detailId: null }
 }
 
 function FitBounds({ coords }) {
@@ -80,7 +170,7 @@ function FitBounds({ coords }) {
 // Shared map used by both the list page and the detail page. When
 // mapEdit.active is true it takes over entirely, showing the editable
 // point layer instead of whatever routes were passed in.
-function RouteMap({ visibleRoutes, labelsVisible, fitTo, mapEdit }) {
+function RouteMap({ visibleRoutes, labelsVisible, fitTo, mapEdit, showDestinations }) {
   const { active, base, coords, rangeSelection, rangeBounds, onNodeClick, onNodeDrag, onDeleteRange, onClearRange, onDiscard, onApply } = mapEdit
 
   return (
@@ -128,6 +218,13 @@ function RouteMap({ visibleRoutes, labelsVisible, fitTo, mapEdit }) {
             </Fragment>
           )
         })}
+        {!active && showDestinations && visibleRoutes.map((route) => (
+          (route.destinations || []).map((dest, i) => (
+            <Marker key={`${route.id}-dest-${i}`} position={dest.coord} icon={destinationIcon}>
+              <Popup>{dest.label}</Popup>
+            </Marker>
+          ))
+        ))}
 
         {active && base && (
           <>
@@ -158,7 +255,7 @@ function RouteMap({ visibleRoutes, labelsVisible, fitTo, mapEdit }) {
       {active && (
         <div className="map-edit-toolbar">
           <span>
-            Editing <strong>{base.name}</strong> — {coords.length} points
+            Editing <strong>{base.name || (base.trip && base.trip.name)}</strong> — {coords.length} points
           </span>
           <span className="map-edit-hint">
             click a dot to delete it · drag to move it · shift-click two dots to select a range
@@ -210,17 +307,37 @@ function EditModal({ route, text, error, onChange, onCancel, onSave, onEnterMapE
   )
 }
 
-function RouteListPage({ routes, activeIds, onToggle, onOpenDetail, onStartEditing, showLabels, onToggleLabels, mapEdit }) {
-  const visibleRoutes = useMemo(() => routes.filter((r) => activeIds.has(r.id)), [routes, activeIds])
+function SiteNav({ current, onNavigate }) {
+  return (
+    <nav className="site-nav">
+      {Object.entries(COLLECTIONS).map(([key, c]) => (
+        <button
+          key={key}
+          className={`site-nav-link ${key === current ? 'active' : ''}`}
+          onClick={() => onNavigate(key)}
+        >
+          {c.navLabel}
+        </button>
+      ))}
+    </nav>
+  )
+}
+
+function RouteListPage({ collection, routes, activeIds, onToggle, onOpenDetail, onStartEditing, showLabels, onToggleLabels, onNavigate, mapEdit }) {
+  const collectionRoutes = useMemo(() => routes.filter((r) => (r.collection || DEFAULT_COLLECTION) === collection), [routes, collection])
+  const visibleRoutes = useMemo(() => collectionRoutes.filter((r) => activeIds.has(r.id)), [collectionRoutes, activeIds])
+  const meta = COLLECTIONS[collection]
 
   return (
     <div className="app">
       <aside className="sidebar">
-        <h1>Berlin: no-turn bike routes</h1>
-        <p className="subtitle">
-          Roads you can cycle "straight" across Berlin — the street changes
-          name, but you never turn.
-        </p>
+        <SiteNav current={collection} onNavigate={onNavigate} />
+        <h1>{meta.title}</h1>
+        <p className="subtitle">{meta.subtitle}</p>
+
+        {collectionRoutes.length === 0 && (
+          <p className="empty-state">{meta.empty}</p>
+        )}
 
         <div className="labels-control">
           <button
@@ -236,7 +353,7 @@ function RouteListPage({ routes, activeIds, onToggle, onOpenDetail, onStartEditi
         </div>
 
         <div className="route-list">
-          {routes.map((route) => {
+          {collectionRoutes.map((route) => {
             const isVisible = activeIds.has(route.id)
             return (
               <div
@@ -267,7 +384,7 @@ function RouteListPage({ routes, activeIds, onToggle, onOpenDetail, onStartEditi
                   )}
                 </div>
                 <div className={`confidence confidence-${route.confidence}`}>
-                  {route.confidence === 'high' ? 'Verified street chain' : 'Approximate route'}
+                  {confidenceLabel(route)}
                 </div>
                 <ol className="street-chain">
                   {route.streetLabels.map((s, i) => (
@@ -292,15 +409,24 @@ function RouteListPage({ routes, activeIds, onToggle, onOpenDetail, onStartEditi
 }
 
 function RouteDetailPage({ route, onBack, onStartEditing, mapEdit }) {
+  const wt = route.waterTrip
+  const gmapsUrl = googleMapsDirectionsUrl(route)
   return (
     <div className="detail-page">
       <header className="detail-header">
         <button className="back-link" onClick={onBack}>← Back to all routes</button>
-        {import.meta.env.DEV && (
-          <button className="edit-icon detail-edit-icon" title="Edit route (local only)" onClick={(e) => onStartEditing(route, e)}>
-            ✏️ Edit
-          </button>
-        )}
+        <div className="detail-header-actions">
+          {gmapsUrl && (
+            <a className="edit-icon gmaps-link" href={gmapsUrl} target="_blank" rel="noreferrer" title="Open this route's stops as directions in Google Maps">
+              Open in Google Maps ↗
+            </a>
+          )}
+          {import.meta.env.DEV && (
+            <button className="edit-icon detail-edit-icon" title="Edit route (local only)" onClick={(e) => onStartEditing(route, e)}>
+              ✏️ Edit
+            </button>
+          )}
+        </div>
       </header>
 
       <div className="detail-body">
@@ -310,11 +436,11 @@ function RouteDetailPage({ route, onBack, onStartEditing, mapEdit }) {
             <h1>{route.name}</h1>
           </div>
           <div className={`confidence confidence-${route.confidence}`}>
-            {route.confidence === 'high' ? 'Verified street chain' : 'Approximate route'}
+            {confidenceLabel(route)}
           </div>
 
           <section className="detail-section">
-            <h2>Street chain</h2>
+            <h2>{wt ? 'Waypoints' : 'Street chain'}</h2>
             <ol className="street-chain street-chain-lg">
               {route.streetLabels.map((s, i) => (
                 <li key={i}>{s}</li>
@@ -322,18 +448,77 @@ function RouteDetailPage({ route, onBack, onStartEditing, mapEdit }) {
             </ol>
           </section>
 
-          <section className="detail-section">
-            <h2>Notes</h2>
-            <p className="note note-lg">{route.note}</p>
-          </section>
+          {wt && (
+            <section className="detail-section">
+              <h2>Trip details</h2>
+              <dl className="trip-details">
+                <dt>Waterway</dt>
+                <dd>{wt.trip.waterway}</dd>
+
+                <dt>Distance</dt>
+                <dd>
+                  ~{wt.distance.estimated_km} km ({wt.distance.range_km[0]}–{wt.distance.range_km[1]} km range)
+                  <span className="trip-detail-note"> — {wt.distance.note}</span>
+                </dd>
+
+                <dt>Water flow</dt>
+                <dd>
+                  {wt.water_flow.general_direction}, typical current {wt.water_flow.current_strength_kmh.typical}–{wt.water_flow.current_strength_kmh.max} km/h
+                  <span className="trip-detail-note"> — {wt.water_flow.note}</span>
+                </dd>
+
+                <dt>Paddling assumptions</dt>
+                <dd>
+                  {wt.paddling_speed_assumptions.craft}, {wt.paddling_speed_assumptions.skill_level} skill, {wt.paddling_speed_assumptions.conditions} —{' '}
+                  {wt.paddling_speed_assumptions.speed_kmh.low}–{wt.paddling_speed_assumptions.speed_kmh.high} km/h (typ. {wt.paddling_speed_assumptions.speed_kmh.typical})
+                </dd>
+
+                <dt>Time estimate</dt>
+                <dd>
+                  {wt.time_estimate.total_hours.low}–{wt.time_estimate.total_hours.high} hours (typ. {wt.time_estimate.total_hours.typical}h) —{' '}
+                  {wt.time_estimate.feasible_single_day ? 'feasible in a single day' : 'not feasible in a single day'}
+                  <span className="trip-detail-note"> — {wt.time_estimate.recommendation}</span>
+                </dd>
+              </dl>
+
+              {wt.sources && wt.sources.length > 0 && (
+                <div className="trip-sources">
+                  <h3 className="detail-subheading">Sources</h3>
+                  <ul>
+                    {wt.sources.map((s, i) => (
+                      <li key={i}><a href={s} target="_blank" rel="noreferrer">{s}</a></li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
+          )}
+
+          {route.destinations && route.destinations.length > 0 && (
+            <section className="detail-section">
+              <h2>Destinations along the route</h2>
+              <ul className="destination-list">
+                {route.destinations.map((d, i) => (
+                  <li key={i}>{d.label}</li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <section className="detail-section detail-section-placeholder">
             <h2>Description, photos &amp; variations</h2>
             <p className="note">Nothing added yet — this space is reserved for extra write-up, photos, and route variations.</p>
           </section>
+
+          {!wt && (
+            <section className="detail-section">
+              <h3 className="detail-subheading">Technical notes</h3>
+              <p className="note">{route.note}</p>
+            </section>
+          )}
         </div>
 
-        <RouteMap visibleRoutes={[route]} labelsVisible fitTo={route.coordinates} mapEdit={mapEdit} />
+        <RouteMap visibleRoutes={[route]} labelsVisible fitTo={route.coordinates} mapEdit={mapEdit} showDestinations />
       </div>
     </div>
   )
@@ -342,27 +527,33 @@ function RouteDetailPage({ route, onBack, onStartEditing, mapEdit }) {
 function App() {
   const [routes, setRoutes] = useState(initialRoutes)
   const [activeIds, setActiveIds] = useState(() => new Set(initialRoutes.map((r) => r.id)))
-  const [detailId, setDetailIdState] = useState(() => routeIdFromPath())
+  const [location, setLocation] = useState(() => parseLocation())
   const [showLabels, setShowLabels] = useState(false)
 
   useEffect(() => {
-    const onPopState = () => setDetailIdState(routeIdFromPath())
+    const onPopState = () => setLocation(parseLocation())
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
   const openDetail = (id) => {
-    const path = `/routes/${id}`
-    window.history.pushState({}, '', path)
-    setDetailIdState(id)
+    const route = routes.find((r) => r.id === id)
+    window.history.pushState({}, '', `/routes/${id}`)
+    setLocation({ collection: (route && route.collection) || DEFAULT_COLLECTION, detailId: id })
   }
 
   const closeDetail = () => {
-    window.history.pushState({}, '', '/')
-    setDetailIdState(null)
+    window.history.pushState({}, '', COLLECTIONS[location.collection].path)
+    setLocation({ collection: location.collection, detailId: null })
+  }
+
+  const navigateToCollection = (key) => {
+    window.history.pushState({}, '', COLLECTIONS[key].path)
+    setLocation({ collection: key, detailId: null })
   }
 
   const [editingId, setEditingId] = useState(null)
+  const [editingCollection, setEditingCollection] = useState(null)
   const [editText, setEditText] = useState('')
   const [editError, setEditError] = useState(null)
 
@@ -382,12 +573,17 @@ function App() {
   const startEditing = (route, e) => {
     e.stopPropagation()
     setEditingId(route.id)
-    setEditText(formatRouteForEditing(route))
+    setEditingCollection(route.collection)
+    // Water trips are edited in their own raw schema (trip/distance/etc,
+    // not the normalized route shape), so saving writes back a valid
+    // wasserwege.json entry instead of a malformed hybrid.
+    setEditText(formatRouteForEditing(route.waterTrip || route))
     setEditError(null)
   }
 
   const cancelEditing = () => {
     setEditingId(null)
+    setEditingCollection(null)
     setEditError(null)
     setMapEditActive(false)
   }
@@ -404,12 +600,14 @@ function App() {
       const res = await fetch('/api/routes', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: editingId, route: parsed }),
+        body: JSON.stringify({ id: editingId, route: parsed, collection: editingCollection }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Save failed')
-      setRoutes((prev) => prev.map((r) => (r.id === editingId ? parsed : r)))
+      const normalized = editingCollection === 'wasserwege' ? normalizeWaterTrip(parsed) : parsed
+      setRoutes((prev) => prev.map((r) => (r.id === editingId ? normalized : r)))
       setEditingId(null)
+      setEditingCollection(null)
       setEditError(null)
     } catch (err) {
       setEditError(`Save failed: ${err.message}. (Editing only works when running the local dev server.)`)
@@ -482,7 +680,7 @@ function App() {
   const clearRangeSelection = () => setRangeSelection([])
 
   const editingRoute = routes.find((r) => r.id === editingId)
-  const detailRoute = routes.find((r) => r.id === detailId)
+  const detailRoute = location.detailId ? routes.find((r) => r.id === location.detailId) : null
 
   const mapEditProps = {
     active: mapEditActive,
@@ -504,6 +702,7 @@ function App() {
         <RouteDetailPage route={detailRoute} onBack={closeDetail} onStartEditing={startEditing} mapEdit={mapEditProps} />
       ) : (
         <RouteListPage
+          collection={location.collection}
           routes={routes}
           activeIds={activeIds}
           onToggle={toggle}
@@ -511,6 +710,7 @@ function App() {
           onStartEditing={startEditing}
           showLabels={showLabels}
           onToggleLabels={() => setShowLabels((v) => !v)}
+          onNavigate={navigateToCollection}
           mapEdit={mapEditProps}
         />
       )}
